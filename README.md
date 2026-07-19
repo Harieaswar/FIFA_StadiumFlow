@@ -18,7 +18,7 @@ The application includes a working frontend and backend with secure login, role-
 
 
 
-\## 🎯 Purpose of the Application
+## 🎯 Purpose of the Application
 
 
 
@@ -54,11 +54,11 @@ StadiumFlow AI brings these services together in one platform and uses Generativ
 
 
 
-\# ✨ Features
+# ✨ Features
 
 
 
-\## 🔐 Secure Login and Authentication
+## 🔐 Secure Login and Authentication
 
 
 
@@ -96,7 +96,7 @@ Different users receive access based on their assigned role.
 
 
 
-\## 👥 Role-Based Dashboards
+## 👥 Role-Based Dashboards
 
 
 
@@ -128,7 +128,7 @@ For example, fans can access navigation and transport guidance, while administra
 
 
 
-\## 🤖 FlowBot AI Assistant
+## 🤖 FlowBot AI Assistant
 
 
 
@@ -184,7 +184,7 @@ FlowBot can provide:
 
 
 
-\## 🗺️ Smart Stadium Navigation
+## 🗺️ Smart Stadium Navigation
 
 
 
@@ -254,7 +254,7 @@ The system can also show estimated walking distance and travel time.
 
 
 
-\## 🏟️ Multi-Stadium Support
+## 🏟️ Multi-Stadium Support
 
 
 
@@ -290,7 +290,7 @@ Detailed stadium information is loaded only when a stadium is selected, improvin
 
 
 
-\## 👥 Crowd Intelligence
+## 👥 Crowd Intelligence
 
 
 
@@ -340,7 +340,7 @@ The AI can generate recommendations such as:
 
 
 
-\## 🚨 Emergency Assistance
+## 🚨 Emergency Assistance
 
 
 
@@ -398,7 +398,7 @@ After submission, the system generates a report number and sends the incident to
 
 
 
-\## 📋 Incident Management
+## 📋 Incident Management
 
 
 
@@ -452,7 +452,7 @@ Incident statuses can include:
 
 
 
-\## 🚌 Transportation Assistance
+## 🚌 Transportation Assistance
 
 
 
@@ -494,7 +494,7 @@ Users can enter their starting location, destination, preferred transport mode, 
 
 
 
-\## ♿ Accessibility Centre
+## ♿ Accessibility Centre
 
 
 
@@ -542,7 +542,7 @@ Accessibility preferences can be saved to the user profile.
 
 
 
-\## 🌐 Multilingual Assistance
+## 🌐 Multilingual Assistance
 
 
 
@@ -624,7 +624,7 @@ Announcements can be reviewed and edited before publishing.
 
 
 
-\## 🧑‍💼 Staff and Volunteer Management
+## 🧑‍💼 Staff and Volunteer Management
 
 
 
@@ -684,7 +684,7 @@ For example, a crowd warning can be converted into a task containing:
 
 
 
-\## 🌱 Sustainability Dashboard
+## 🌱 Sustainability Dashboard
 
 
 
@@ -734,7 +734,7 @@ The AI can suggest actions such as:
 
 
 
-\## 🔔 Notification Centre
+## 🔔 Notification Centre
 
 
 
@@ -770,7 +770,7 @@ Users can mark notifications as read, filter them by category, and manage notifi
 
 
 
-\## ⚙️ Settings
+## ⚙️ Settings
 
 
 
@@ -802,7 +802,7 @@ The settings section allows users to manage:
 
 
 
-\## 📊 Operational Intelligence
+## 📊 Operational Intelligence
 
 
 
@@ -846,7 +846,7 @@ Generative AI can analyse this information and produce a short operational summa
 
 
 
-\## 🧠 AI-Powered Decision Support
+## 🧠 AI-Powered Decision Support
 
 
 
@@ -888,7 +888,7 @@ AI-generated recommendations require human review before important actions are p
 
 
 
-\## 🎭 Demo Mode
+## 🎭 Demo Mode
 
 
 
@@ -924,7 +924,7 @@ Demo information is clearly labelled and can later be replaced with real data so
 
 
 
-\## ⚠️ Disclaimer
+## ⚠️ Disclaimer
 
 
 
