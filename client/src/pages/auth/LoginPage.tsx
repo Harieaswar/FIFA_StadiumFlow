@@ -13,26 +13,28 @@ const schema = z.object({
 });
 
 type FormData = z.infer<typeof schema>;
+type DemoRole = 'fan' | 'volunteer' | 'staff' | 'admin';
 
-const DEMO_ACCOUNTS = [
-  { email: 'fan@stadiumflow.demo', role: 'Fan', color: 'text-indigo-400', bg: 'hover:bg-indigo-500/10' },
-  { email: 'volunteer@stadiumflow.demo', role: 'Volunteer', color: 'text-teal-400', bg: 'hover:bg-teal-500/10' },
-  { email: 'staff@stadiumflow.demo', role: 'Staff', color: 'text-blue-400', bg: 'hover:bg-blue-500/10' },
-  { email: 'admin@stadiumflow.demo', role: 'Admin', color: 'text-purple-400', bg: 'hover:bg-purple-500/10' },
+const DEMO_ACCOUNTS: { role: DemoRole; label: string; color: string; bg: string }[] = [
+  { role: 'fan',       label: 'Fan',       color: 'text-indigo-400', bg: 'hover:bg-indigo-500/10' },
+  { role: 'volunteer', label: 'Volunteer', color: 'text-teal-400',   bg: 'hover:bg-teal-500/10'   },
+  { role: 'staff',     label: 'Staff',     color: 'text-blue-400',   bg: 'hover:bg-blue-500/10'   },
+  { role: 'admin',     label: 'Admin',     color: 'text-purple-400', bg: 'hover:bg-purple-500/10' },
 ];
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState('');
+  const [demoLoading, setDemoLoading] = useState<DemoRole | ''>('');
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
+  /** Normal email + password login (live Firebase only) */
   const onSubmit = async (data: FormData) => {
     setError('');
     setIsLoading(true);
@@ -40,9 +42,15 @@ export default function LoginPage() {
       await login(data.email, data.password);
       navigate('/dashboard');
     } catch (err: unknown) {
-      const msg = (err as Error).message || 'Invalid email or password';
+      const msg = (err as Error).message || 'Login failed';
       if (msg.includes('429') || msg.includes('locked') || msg.includes('Too many')) {
         setError('Too many login attempts. Please wait a moment and try again.');
+      } else if (
+        msg.includes('Firebase') ||
+        msg.includes('503') ||
+        msg.includes('Demo Mode')
+      ) {
+        setError('Live account login requires Firebase. Use one of the Demo Mode buttons above.');
       } else {
         setError(msg);
       }
@@ -51,17 +59,15 @@ export default function LoginPage() {
     }
   };
 
-  // One-click demo login — fills and immediately submits
-  const loginAsDemo = async (email: string) => {
+  /** One-click demo login — calls /api/auth/demo-login with just the role */
+  const loginAsDemo = async (role: DemoRole) => {
     setError('');
-    setDemoLoading(email);
-    setValue('email', email);
-    setValue('password', 'DemoPass123!');
+    setDemoLoading(role);
     try {
-      await login(email, 'DemoPass123!');
+      await demoLogin(role);
       navigate('/dashboard');
     } catch (err: unknown) {
-      const msg = (err as Error).message || 'Demo login failed';
+      const msg = (err as Error).message || 'Demo login failed. Please try again.';
       setError(msg);
     } finally {
       setDemoLoading('');
@@ -123,25 +129,27 @@ export default function LoginPage() {
             <h2 className="text-2xl font-display font-bold text-slate-100 mb-1">Welcome back</h2>
             <p className="text-slate-400 text-sm mb-6">Sign in to your StadiumFlow account</p>
 
-            {/* Demo mode — one-click instant login */}
+            {/* ── Demo mode — one-click instant login ───────────────────────── */}
             <div className="mb-5 p-4 bg-indigo-950/40 border border-indigo-800/50 rounded-xl">
               <p className="text-xs text-indigo-300 font-semibold mb-3 flex items-center gap-1.5">
                 <Zap size={12} className="text-indigo-400" />
-                Demo Mode — One-click login:
+                Demo Mode — instant one-click login:
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {DEMO_ACCOUNTS.map(acc => (
                   <button
-                    key={acc.email}
-                    onClick={() => loginAsDemo(acc.email)}
+                    key={acc.role}
+                    id={`demo-login-${acc.role}`}
+                    onClick={() => loginAsDemo(acc.role)}
                     disabled={!!demoLoading || isLoading}
                     className={`flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-700 text-xs font-semibold transition-all ${acc.color} ${acc.bg} disabled:opacity-50 disabled:cursor-not-allowed`}
                     type="button"
+                    aria-label={`Login as ${acc.label}`}
                   >
-                    {demoLoading === acc.email ? (
+                    {demoLoading === acc.role ? (
                       <Loader2 size={12} className="animate-spin" />
                     ) : null}
-                    {acc.role}
+                    {acc.label}
                   </button>
                 ))}
               </div>
@@ -159,7 +167,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-slate-800" />
               </div>
               <div className="relative flex justify-center text-xs text-slate-600">
-                <span className="bg-slate-900 px-3">or sign in manually</span>
+                <span className="bg-slate-900 px-3">or sign in with email (Firebase)</span>
               </div>
             </div>
 
@@ -212,11 +220,12 @@ export default function LoginPage() {
 
               <button
                 type="submit"
+                id="login-submit-btn"
                 disabled={isLoading || !!demoLoading}
                 className="btn-primary w-full"
                 aria-live="polite"
               >
-                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Signing in...</> : 'Sign In'}
+                {isLoading ? <><Loader2 size={16} className="animate-spin" /> Signing in...</> : 'Sign In with Firebase'}
               </button>
             </form>
 

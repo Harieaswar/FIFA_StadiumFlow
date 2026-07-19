@@ -4,6 +4,7 @@ import api from '../services/api';
 
 interface AuthContextValue extends AuthState {
   login: (email: string, password: string) => Promise<void>;
+  demoLogin: (role: 'fan' | 'volunteer' | 'staff' | 'admin') => Promise<void>;
   signup: (email: string, password: string, displayName: string, role?: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
@@ -63,6 +64,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => window.removeEventListener('auth:logout', handleLogout);
   }, [restoreSession, logout]);
 
+  /** One-click demo login — calls /api/auth/demo-login with just a role */
+  const demoLogin = async (role: 'fan' | 'volunteer' | 'staff' | 'admin') => {
+    try {
+      const res = await api.post<{ token: string; user: User }>('/auth/demo-login', { role });
+      if (!res.success) throw new Error(res.message || 'Demo login failed');
+      api.setToken(res.data.token);
+      setState({ user: res.data.user, token: res.data.token, isAuthenticated: true, isLoading: false });
+    } catch (err) {
+      const msg = api.extractErrorMessage(err);
+      throw new Error(msg);
+    }
+  };
+
+  /** Normal email + password login via Firebase (live mode only) */
   const login = async (email: string, password: string) => {
     try {
       const res = await api.post<{ token: string; user: User }>('/auth/login', { email, password });
@@ -70,7 +85,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       api.setToken(res.data.token);
       setState({ user: res.data.user, token: res.data.token, isAuthenticated: true, isLoading: false });
     } catch (err) {
-      // Re-throw with a clean, user-friendly message
       const msg = api.extractErrorMessage(err);
       throw new Error(msg);
     }
@@ -94,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider value={{ ...state, login, demoLogin, signup, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

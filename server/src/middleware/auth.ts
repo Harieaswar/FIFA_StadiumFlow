@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { auth } from '../config/firebase';
-import { demoUsers } from '../data/demoData';
+import { verifyToken } from '../routes/auth';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -10,8 +10,6 @@ export interface AuthRequest extends Request {
     displayName?: string;
   };
 }
-
-
 
 export const authenticate = async (
   req: AuthRequest,
@@ -26,16 +24,22 @@ export const authenticate = async (
 
     const token = authHeader.split(' ')[1];
 
+    // ── Demo mode: verify our signed JWT (stateless, works across all instances) ──
     if (process.env.DEMO_MODE === 'true') {
-      // In demo mode, token IS the demo user uid
-      const demoUser = demoUsers.find(u => u.uid === token || u.email === token);
-      if (!demoUser) {
-        return res.status(401).json({ success: false, message: 'Invalid demo token' });
+      const decoded = verifyToken(token);
+      if (!decoded) {
+        return res.status(401).json({ success: false, message: 'Invalid or expired demo token' });
       }
-      req.user = { uid: demoUser.uid, email: demoUser.email, role: demoUser.role, displayName: demoUser.displayName };
+      req.user = {
+        uid: decoded.uid,
+        email: decoded.email,
+        role: decoded.role,
+        displayName: decoded.displayName,
+      };
       return next();
     }
 
+    // ── Live mode: verify Firebase ID token ────────────────────────────────────
     if (!auth) {
       return res.status(503).json({ success: false, message: 'Authentication service unavailable' });
     }

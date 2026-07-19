@@ -48,6 +48,9 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState('');
 
+  // Detect demo mode from environment — when true, disable the create-account form
+  const isDemoMode = import.meta.env.VITE_DEMO_MODE === 'true';
+
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { role: 'fan' },
@@ -64,6 +67,10 @@ export default function SignupPage() {
   ];
 
   const onSubmit = async (data: FormData) => {
+    if (isDemoMode) {
+      setError('Account creation is unavailable in Demo Mode. Use a demo account to explore the application.');
+      return;
+    }
     setError('');
     setIsLoading(true);
     try {
@@ -90,9 +97,24 @@ export default function SignupPage() {
           <h2 className="text-2xl font-display font-bold text-slate-100 mb-1">Create account</h2>
           <p className="text-slate-400 text-sm mb-6">Join StadiumFlow AI for FIFA World Cup 2026</p>
 
-          <div className="mb-4 p-3 bg-amber-950/30 border border-amber-800/50 rounded-xl">
-            <p className="text-xs text-amber-300">🎭 Demo Mode: New accounts are created in memory and reset on server restart.</p>
-          </div>
+          {isDemoMode ? (
+            <div className="mb-6 p-4 bg-amber-950/30 border border-amber-700/50 rounded-xl">
+              <p className="text-sm font-semibold text-amber-300 mb-1">🎭 Demo Mode Active</p>
+              <p className="text-xs text-amber-400/80">
+                Account creation is unavailable in Demo Mode. Use a demo account to explore the application.
+              </p>
+              <Link
+                to="/login"
+                className="mt-2 inline-flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 font-medium"
+              >
+                ← Back to demo login buttons
+              </Link>
+            </div>
+          ) : (
+            <div className="mb-4 p-3 bg-blue-950/30 border border-blue-800/50 rounded-xl">
+              <p className="text-xs text-blue-300">🔐 Live Mode: Accounts are created via Firebase Authentication.</p>
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 p-3 bg-red-900/30 border border-red-800/50 rounded-xl flex items-start gap-2" role="alert">
@@ -172,8 +194,18 @@ export default function SignupPage() {
               {errors.confirmPassword && <p className="input-error"><AlertCircle size={12} />{errors.confirmPassword.message}</p>}
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn-primary w-full">
-              {isLoading ? <><Loader2 size={16} className="animate-spin" /> Creating account...</> : 'Create Account'}
+            <button
+              type="submit"
+              id="signup-submit-btn"
+              disabled={isLoading || isDemoMode}
+              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-disabled={isDemoMode}
+            >
+              {isLoading
+                ? <><Loader2 size={16} className="animate-spin" /> Creating account...</>
+                : isDemoMode
+                  ? 'Unavailable in Demo Mode'
+                  : 'Create Account'}
             </button>
           </form>
 
