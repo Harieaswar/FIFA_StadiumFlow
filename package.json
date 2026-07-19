@@ -1,0 +1,23 @@
+{
+  "name": "stadiumflow-ai",
+  "version": "1.0.0",
+  "description": "GenAI-enabled stadium operations platform for FIFA World Cup 2026",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=client\" \"npm run dev --workspace=server\"",
+    "build": "npm run build --workspace=client && npm run build --workspace=server",
+    "test": "npm run test --workspace=client && npm run test --workspace=server",
+    "test:e2e": "cd e2e && npx playwright test",
+    "seed": "npm run seed --workspace=server",
+    "lint": "npm run lint --workspace=client && npm run lint --workspace=server"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "concurrently": "^9.2.4",
+    "typescript": "^7.0.2"
+  }
+}
